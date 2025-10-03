@@ -1,0 +1,8 @@
+[package]
+name = "sdlcamtest"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+nokhwa = {version="0.10.9", features = ["input-avfoundation", "output-threaded"]}
+sdl2 = "0.38.0"
