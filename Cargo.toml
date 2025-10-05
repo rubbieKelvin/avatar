@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 sdl2 = {version="0.38.0", features=["ttf", "image", "gfx"]}
+strum = { version = "0.27.2", features = ["derive"] }

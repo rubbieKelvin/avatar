@@ -30,7 +30,7 @@ impl<'a, 'b> Application<'a, 'b> {
         let canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
         let texture_creator = canvas.texture_creator();
         let textmanager = GlobalTextManager::new(ttfctx, texture_creator)?;
-        let editor = Editor::new(&textmanager);
+        let editor = Editor::new();
 
         return Ok(Application {
             canvas,
@@ -49,6 +49,7 @@ impl<'a, 'b> Application<'a, 'b> {
 
     /// Handle Ui events
     fn handle_events(&mut self, event: Event) {
+        // top level match
         match event {
             // Quit application on ui quit or Esc click
             Event::Quit { .. }
@@ -61,10 +62,13 @@ impl<'a, 'b> Application<'a, 'b> {
             // ignore otther shi
             _ => {}
         }
+
+        // pass to editor
+        self.editor.handle_events(event);
     }
 
     fn draw(&mut self) -> Result<(), String> {
-        self.editor.draw(&mut self.canvas)?;
+        self.editor.draw(&mut self.canvas, &self.textmanager)?;
         return Ok(());
     }
 
@@ -74,8 +78,8 @@ impl<'a, 'b> Application<'a, 'b> {
 
         while self.running {
             // clear screen
-            self.canvas.clear();
             self.canvas.set_draw_color(Color::BLACK);
+            self.canvas.clear();
 
             // process events
             for event in event_pump.poll_iter() {
