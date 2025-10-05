@@ -1,13 +1,14 @@
 use sdl2::{
     pixels::Color,
-    rect::Point,
+    rect::{Point, Rect},
     render::{Canvas, TextureCreator},
+    surface::Surface,
     ttf::{Font, Sdl2TtfContext},
     video::{Window, WindowContext},
 };
 
 pub enum GlobalyLoadedFonts {
-    Tarzeau20,
+    Tarzeau16,
 }
 
 /// Managing text globally including fonts
@@ -21,7 +22,7 @@ impl<'a, 'b> GlobalTextManager<'a, 'b> {
         ctx: &'a Sdl2TtfContext,
         texture_creator: TextureCreator<WindowContext>,
     ) -> Result<Self, String> {
-        let font0 = ctx.load_font("fonts/tarzeau_ocr_a.ttf", 20)?;
+        let font0 = ctx.load_font("fonts/tarzeau_ocr_a.ttf", 16)?;
 
         return Ok(GlobalTextManager {
             font0,
@@ -38,7 +39,7 @@ impl<'a, 'b> GlobalTextManager<'a, 'b> {
         return TextBuilder::new(
             text,
             match font {
-                GlobalyLoadedFonts::Tarzeau20 => &self.font0,
+                GlobalyLoadedFonts::Tarzeau16 => &self.font0,
             },
             &self.texture_creator,
         );
@@ -65,7 +66,7 @@ impl<'a, 'b> TextBuilder<'a, 'b> {
             _tc: texture_creator,
             _font: font,
             _position: (0, 0),
-            _color: Color::RGB(150, 150, 150),
+            _color: Color::WHITE,
             _centered: false,
         };
     }
@@ -87,7 +88,7 @@ impl<'a, 'b> TextBuilder<'a, 'b> {
         return self;
     }
 
-    pub fn render(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
+    pub fn surface<'s>(&self) -> Result<(Surface<'s>, Rect), String> {
         let text = &self.text;
         let surf = self
             ._font
@@ -103,6 +104,12 @@ impl<'a, 'b> TextBuilder<'a, 'b> {
             rect.set_x(self._position.0);
             rect.set_y(self._position.1);
         }
+
+        return Ok((surf, rect));
+    }
+
+    pub fn render(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
+        let (surf, rect) = self.surface()?;
 
         // load to gpu
         let texture = surf.as_texture(self._tc).map_err(|e| e.to_string())?;

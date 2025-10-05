@@ -4,10 +4,7 @@ use sdl2::{
 };
 use std::{thread, time::Duration};
 
-use crate::{
-    editor::Editor,
-    text::{GlobalTextManager, GlobalyLoadedFonts},
-};
+use crate::{editor::Editor, text::GlobalTextManager};
 
 mod editor;
 mod text;
@@ -29,14 +26,16 @@ impl<'a, 'b> Application<'a, 'b> {
             .position_centered()
             .build()
             .map_err(|e| e.to_string())?;
+
         let canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
         let texture_creator = canvas.texture_creator();
         let textmanager = GlobalTextManager::new(ttfctx, texture_creator)?;
+        let editor = Editor::new(&textmanager);
 
         return Ok(Application {
             canvas,
             context: ctx,
-            editor: Editor::new(),
+            editor,
             textmanager,
             running: true,
         });
@@ -66,9 +65,6 @@ impl<'a, 'b> Application<'a, 'b> {
 
     fn draw(&mut self) -> Result<(), String> {
         self.editor.draw(&mut self.canvas)?;
-        self.textmanager
-            .write("Rubbie", GlobalyLoadedFonts::Tarzeau20)
-            .render(&mut self.canvas)?;
         return Ok(());
     }
 

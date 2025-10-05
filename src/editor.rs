@@ -1,29 +1,42 @@
-use sdl2::{pixels::Color, render::Canvas, video::Window};
+use sdl2::{rect::Rect, render::Canvas, surface::Surface, video::Window};
 
-pub struct Layer {
-    name: String,
-}
+use crate::text::{GlobalTextManager, GlobalyLoadedFonts};
 
 pub struct Editor {
-    layers: Vec<Layer>,
+    section_text_surfaces: Vec<(Surface<'static>, Rect)>,
 }
 
 impl Editor {
-    pub fn new() -> Self {
+    pub fn new<'a, 'b>(tm: &GlobalTextManager<'a, 'b>) -> Editor {
+        let section_text_surfaces = ["hat", "head", "eyes", "mouth"]
+            .iter()
+            .enumerate()
+            .map(|(i, text)| {
+                // y is initial top-padding + incremental y + spacing btw text
+                let y = 20 + (20 * i as i32) + (5 * i as i32);
+                return tm
+                    .write(text, GlobalyLoadedFonts::Tarzeau16)
+                    .position(20, y)
+                    .surface()
+                    .unwrap();
+            })
+            .collect::<Vec<(Surface<'static>, Rect)>>();
+
         return Editor {
-            layers: ["Head", "Eyes", "Mouth", "Body", "Hat"]
-                .iter()
-                .map(|name| Layer {
-                    name: name.to_string(),
-                })
-                .collect(),
+            section_text_surfaces,
         };
     }
 
-    pub fn draw(&mut self, canvas: &mut Canvas<Window>) -> Result<(), String> {
-        let vp = canvas.viewport();
-        canvas.set_draw_color(Color::RED);
-        canvas.draw_rect(vp)?;
+    pub fn draw<'a, 'b>(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
+        let texture_creator = canvas.texture_creator();
+
+        for (surf, rect) in &self.section_text_surfaces {
+            let texture = surf
+                .as_texture(&texture_creator)
+                .map_err(|e| e.to_string())?;
+
+            canvas.copy(&texture, None, Some(*rect))?;
+        }
         return Ok(());
     }
 }
