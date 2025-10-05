@@ -63,16 +63,22 @@ pub fn draw_select_area<'a, 'b, S: AsRef<str>>(
     area: Rect,
     canvas: &mut Canvas<Window>,
     tm: &GlobalTextManager<'a, 'b>,
+    active: bool,
 ) -> Result<(), String> {
     let corner_rect = Rect::new(0, 0, 4, 4);
     canvas.draw_rect(area)?;
-    canvas.fill_rect(corner_rect.centered_on(area.top_left()))?;
-    canvas.fill_rect(corner_rect.centered_on(area.top_right()))?;
-    canvas.fill_rect(corner_rect.centered_on(area.bottom_left()))?;
-    canvas.fill_rect(corner_rect.centered_on(area.bottom_right()))?;
-    tm.write(label, GlobalyLoadedFonts::Tarzeau12)
-        .color(Color::GRAY)
-        .position(area.x, area.y - 20)
-        .render(canvas)?;
+
+    if active {
+        canvas.fill_rect(corner_rect.centered_on(area.top_left()))?;
+        canvas.fill_rect(corner_rect.centered_on(area.top_right()))?;
+        canvas.fill_rect(corner_rect.centered_on(area.bottom_left()))?;
+        canvas.fill_rect(corner_rect.centered_on(area.bottom_right()))?;
+
+        tm.write(label, GlobalyLoadedFonts::Tarzeau12)
+            .color(Color::GRAY)
+            .position(area.x, area.y - 20)
+            .render(canvas)?;
+    }
+
     return Ok(());
 }

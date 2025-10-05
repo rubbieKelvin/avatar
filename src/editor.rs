@@ -8,10 +8,10 @@ use sdl2::{
 
 use crate::{
     gui::{draw_progress, draw_select_area},
-    puppet::{ComponentKind, Puppet},
+    puppet::{Component, ComponentKind, Puppet},
     text::{GlobalTextManager, GlobalyLoadedFonts},
     timer::Timer,
-    typedefs::Orientation,
+    typedefs::{DragState, Orientation},
 };
 
 struct LayerButton {
@@ -26,6 +26,7 @@ const MAX_AUDIO_LEVEL: f32 = 100.0;
 pub struct Editor {
     puppet: Puppet,
     active_puppet_component: ComponentKind,
+    active_puppet_dragstate: Option<DragState>,
     audio_level: f32,             // audio level in db
     audio_level_set_timer: Timer, // TODO: i dont have mic input, so i'll use this to simulate values for audio for now
     workspace_rect: Rect,         // the area the puppet is displayed
@@ -63,6 +64,7 @@ impl Editor {
             layer_button_area,
             audio_level_set_timer,
             active_puppet_component: ComponentKind::default(),
+            active_puppet_dragstate: None,
             audio_level: 0.,
             puppet,
             workspace_rect: Rect::new(0, 0, 800, 800).centered_on(canvas_viewport.center()), // we'll set this after having access to the canvas
@@ -74,9 +76,17 @@ impl Editor {
         match event {
             Event::MouseMotion { x, y, .. } => {
                 self.check_layer_text_surface_hover(x, y);
+                self.update_active_component_drag_state(x, y);
             }
             Event::MouseButtonDown { x, y, .. } => {
                 self.check_layer_text_surface_click(x, y);
+                self.check_puppet_component_mouse_down(x, y);
+            }
+            Event::MouseButtonUp { .. } => {
+                // if there's a drag state, then we should release it
+                if self.active_puppet_dragstate.is_some() {
+                    self.active_puppet_dragstate = None;
+                }
             }
             _ => {}
         }
@@ -180,16 +190,14 @@ impl Editor {
         tm: &GlobalTextManager<'a, 'b>,
     ) -> Result<(), String> {
         for component in self.puppet.components.iter() {
-            // if the component is selected, draw select
-            if self.active_puppet_component == component.kind {
-                canvas.set_draw_color(Color::RGB(100, 100, 100));
-                draw_select_area(
-                    component.kind.to_string(),
-                    self.use_canvas_coord_for_rect(component.rect()),
-                    canvas,
-                    tm,
-                )?;
-            }
+            canvas.set_draw_color(Color::RGB(100, 100, 100));
+            draw_select_area(
+                component.kind.to_string(),
+                self.use_canvas_coord_for_rect(component.rect()),
+                canvas,
+                tm,
+                self.active_puppet_component == component.kind,
+            )?;
         }
         return Ok(());
     }
@@ -212,6 +220,24 @@ impl Editor {
     fn use_canvas_coord_for_point(&self, point: Point) -> Point {
         let center = self.workspace_rect.center();
         return Point::new(point.x + center.x, point.y + center.y);
+    }
+
+    #[allow(unused)]
+    fn get_active_component(&self) -> Option<&Component> {
+        return self
+            .puppet
+            .components
+            .iter()
+            .find(|c| c.kind == self.active_puppet_component);
+    }
+
+    #[allow(unused)]
+    fn get_active_component_mut(&mut self) -> Option<&mut Component> {
+        return self
+            .puppet
+            .components
+            .iter_mut()
+            .find(|c| c.kind == self.active_puppet_component);
     }
 
     pub fn process(&mut self, delta_ms: f32) {
@@ -259,5 +285,38 @@ impl Editor {
                 break;
             }
         }
+    }
+
+    fn check_puppet_component_mouse_down(&mut self, x: i32, y: i32) {
+        for component in self.puppet.components.iter() {
+            // add canvas offset
+            let rect = self.use_canvas_coord_for_rect(component.rect());
+            if rect.contains_point(Point::new(x, y)) {
+                // select this component and start dragstate
+                self.active_puppet_component = component.kind;
+                self.active_puppet_dragstate = Some(DragState::start(x, y));
+                break;
+            }
+        }
+    }
+
+    fn update_active_component_drag_state(&mut self, x: i32, y: i32) {
+        // if there's a drag state for active puppet, update
+        if self.active_puppet_dragstate.is_none() {
+            return;
+        }
+
+        // take ownershipt from self.active_puppet_dragstate
+        let drag_state = self.active_puppet_dragstate.take();
+        let mut drag_state = drag_state.unwrap();
+
+        let (dx, dy) = drag_state.dxdy(x, y);
+        let active_component = self.get_active_component_mut().unwrap();
+        active_component.position.0 += dx;
+        active_component.position.1 += dy;
+        drag_state.reset(x, y);
+
+        // pass ownership back to self
+        self.active_puppet_dragstate = Some(drag_state);
     }
 }
