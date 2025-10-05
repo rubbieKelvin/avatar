@@ -17,6 +17,7 @@ mod editor;
 mod gui;
 mod text;
 mod timer;
+mod typedefs;
 
 struct Application<'a, 'b> {
     context: &'a Sdl,
@@ -76,7 +77,9 @@ impl<'a, 'b> Application<'a, 'b> {
         self.editor.handle_events(event);
     }
 
-    fn process(&mut self, _delta_ms: f32) {}
+    fn process(&mut self, delta_ms: f32) {
+        self.editor.process(delta_ms);
+    }
 
     fn draw(&mut self) -> Result<(), String> {
         self.editor.draw(&mut self.canvas, &self.textmanager)?;
