@@ -2,9 +2,15 @@ use sdl2::{
     Sdl, event::Event, keyboard::Keycode, pixels::Color, render::Canvas, ttf::Sdl2TtfContext,
     video::Window,
 };
-use std::{thread, time::Duration};
+use std::{
+    thread,
+    time::{Duration, Instant},
+};
 
-use crate::{editor::Editor, text::GlobalTextManager};
+use crate::{
+    editor::Editor,
+    text::{GlobalTextManager, GlobalyLoadedFonts},
+};
 
 mod editor;
 mod text;
@@ -22,7 +28,7 @@ impl<'a, 'b> Application<'a, 'b> {
     fn init(ctx: &'a Sdl, ttfctx: &'a Sdl2TtfContext) -> Result<Self, String> {
         let videosub = ctx.video()?;
         let window = videosub
-            .window("Avatar", 1200, 800)
+            .window("Aang", 1200, 800)
             .position_centered()
             .build()
             .map_err(|e| e.to_string())?;
@@ -67,6 +73,8 @@ impl<'a, 'b> Application<'a, 'b> {
         self.editor.handle_events(event);
     }
 
+    fn process(&mut self, _delta: f32) {}
+
     fn draw(&mut self) -> Result<(), String> {
         self.editor.draw(&mut self.canvas, &self.textmanager)?;
         return Ok(());
@@ -75,16 +83,36 @@ impl<'a, 'b> Application<'a, 'b> {
     /// Mainloop
     fn mainloop(&mut self) -> Result<(), String> {
         let mut event_pump = self.context.event_pump()?;
+        let mut last_frame_time = Instant::now();
 
         while self.running {
+            // get timing
+            let elasped_time = last_frame_time.elapsed();
+            last_frame_time = Instant::now();
+
+            // delta is the time one frame took...
+            // 1.0 / dt is how many frames could fit into one second
+            let dt = elasped_time.as_secs_f32();
+            let fps = if dt > 0.0 { 1.0 / dt } else { 0.0 };
+
             // clear screen
             self.canvas.set_draw_color(Color::BLACK);
             self.canvas.clear();
+
+            // process data (animations and stuff)
+            self.process(dt);
 
             // process events
             for event in event_pump.poll_iter() {
                 self.handle_events(event);
             }
+
+            // draw fps??
+            self.textmanager
+                .write(format!("{fps:.2}"), GlobalyLoadedFonts::Tarzeau16)
+                .position(120, 20)
+                .color(Color::GRAY)
+                .render(&mut self.canvas)?;
 
             // draw
             self.draw()?;

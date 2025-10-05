@@ -40,7 +40,7 @@ impl Editor {
 
                 return LayerButton {
                     kind: layer,
-                    rect: Rect::new(40, y, 80, 40),
+                    rect: Rect::new(20, y, 80, 40),
                     hovered: false,
                 };
             })
