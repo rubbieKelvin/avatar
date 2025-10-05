@@ -9,12 +9,14 @@ use sdl2::{
 
 pub enum GlobalyLoadedFonts {
     Tarzeau16,
+    Tarzeau12,
 }
 
 /// Managing text globally including fonts
 pub struct GlobalTextManager<'a, 'b> {
     texture_creator: TextureCreator<WindowContext>,
     font0: Font<'a, 'b>,
+    font1: Font<'a, 'b>,
 }
 
 impl<'a, 'b> GlobalTextManager<'a, 'b> {
@@ -22,10 +24,12 @@ impl<'a, 'b> GlobalTextManager<'a, 'b> {
         ctx: &'a Sdl2TtfContext,
         texture_creator: TextureCreator<WindowContext>,
     ) -> Result<Self, String> {
-        let font0 = ctx.load_font("fonts/tarzeau_ocr_a.ttf", 16)?;
+        let font0 = ctx.load_font("assets/fonts/tarzeau_ocr_a.ttf", 16)?;
+        let font1 = ctx.load_font("assets/fonts/tarzeau_ocr_a.ttf", 12)?;
 
         return Ok(GlobalTextManager {
             font0,
+            font1,
             texture_creator,
         });
     }
@@ -40,6 +44,7 @@ impl<'a, 'b> GlobalTextManager<'a, 'b> {
             text,
             match font {
                 GlobalyLoadedFonts::Tarzeau16 => &self.font0,
+                GlobalyLoadedFonts::Tarzeau12 => &self.font1,
             },
             &self.texture_creator,
         );

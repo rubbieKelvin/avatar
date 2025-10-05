@@ -15,6 +15,7 @@ use crate::{
 mod animation;
 mod editor;
 mod gui;
+mod puppet;
 mod text;
 mod timer;
 mod typedefs;
@@ -27,20 +28,23 @@ struct Application<'a, 'b> {
     canvas: Canvas<Window>,
 }
 
+const WINDOW_HEIGHT: u32 = 900;
+const WINDOW_WIDTH: u32 = 1600;
+
 impl<'a, 'b> Application<'a, 'b> {
     /// Initialize application
     fn init(ctx: &'a Sdl, ttfctx: &'a Sdl2TtfContext) -> Result<Self, String> {
         let videosub = ctx.video()?;
         let window = videosub
-            .window("Aang", 1200, 800)
+            .window("Aang", WINDOW_WIDTH, WINDOW_HEIGHT)
             .position_centered()
             .build()
             .map_err(|e| e.to_string())?;
 
-        let canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
+        let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
         let texture_creator = canvas.texture_creator();
         let textmanager = GlobalTextManager::new(ttfctx, texture_creator)?;
-        let editor = Editor::new();
+        let editor = Editor::new(&mut canvas);
 
         return Ok(Application {
             canvas,

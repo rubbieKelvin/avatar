@@ -5,7 +5,10 @@ use sdl2::{
     video::Window,
 };
 
-use crate::typedefs::Orientation;
+use crate::{
+    text::{GlobalTextManager, GlobalyLoadedFonts},
+    typedefs::Orientation,
+};
 const PROGRESS_THICKNESS: u32 = 14;
 
 pub fn draw_progress(
@@ -52,5 +55,24 @@ pub fn draw_progress(
     canvas.set_draw_color(color);
     canvas.fill_frect(FRect::new(level_x, level_y, level_w, level_h))?;
 
+    return Ok(());
+}
+
+pub fn draw_select_area<'a, 'b, S: AsRef<str>>(
+    label: S,
+    area: Rect,
+    canvas: &mut Canvas<Window>,
+    tm: &GlobalTextManager<'a, 'b>,
+) -> Result<(), String> {
+    let corner_rect = Rect::new(0, 0, 4, 4);
+    canvas.draw_rect(area)?;
+    canvas.fill_rect(corner_rect.centered_on(area.top_left()))?;
+    canvas.fill_rect(corner_rect.centered_on(area.top_right()))?;
+    canvas.fill_rect(corner_rect.centered_on(area.bottom_left()))?;
+    canvas.fill_rect(corner_rect.centered_on(area.bottom_right()))?;
+    tm.write(label, GlobalyLoadedFonts::Tarzeau12)
+        .color(Color::GRAY)
+        .position(area.x, area.y - 20)
+        .render(canvas)?;
     return Ok(());
 }
