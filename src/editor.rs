@@ -312,8 +312,10 @@ impl Editor {
 
         let (dx, dy) = drag_state.dxdy(x, y);
         let active_component = self.get_active_component_mut().unwrap();
-        active_component.position.0 += dx;
-        active_component.position.1 += dy;
+        let active_component_state = active_component.get_state_mut();
+
+        active_component_state.position.0 += dx;
+        active_component_state.position.1 += dy;
         drag_state.reset(x, y);
 
         // pass ownership back to self
