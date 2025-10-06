@@ -1,5 +1,5 @@
 use sdl2::{
-    pixels::Color,
+    pixels::{Color, PixelFormatEnum},
     rect::{Point, Rect},
     render::{Canvas, TextureCreator},
     surface::Surface,
@@ -7,6 +7,7 @@ use sdl2::{
     video::{Window, WindowContext},
 };
 
+#[derive(Clone)]
 pub enum GlobalyLoadedFonts {
     Tarzeau16,
     Tarzeau12,
@@ -95,6 +96,14 @@ impl<'a, 'b> TextBuilder<'a, 'b> {
 
     pub fn surface<'s>(&self) -> Result<(Surface<'s>, Rect), String> {
         let text = &self.text;
+
+        if text.is_empty() {
+            return Ok((
+                Surface::new(0, 0, PixelFormatEnum::RGB24)?,
+                Rect::new(0, 0, 0, 0),
+            ));
+        }
+
         let surf = self
             ._font
             .render(text)
@@ -115,6 +124,10 @@ impl<'a, 'b> TextBuilder<'a, 'b> {
 
     pub fn render(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
         let (surf, rect) = self.surface()?;
+
+        if surf.width() == 0 || surf.height() == 0 {
+            return Ok(());
+        }
 
         // load to gpu
         let texture = surf.as_texture(self._tc).map_err(|e| e.to_string())?;

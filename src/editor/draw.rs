@@ -17,6 +17,8 @@ impl Editor {
         self._draw_audio_level(canvas)?;
         self._draw_puppet_canvas(canvas)?;
         self._draw_puppet(canvas, tm)?;
+        self.config_panel
+            .draw(canvas, self.get_active_component().unwrap(), tm)?;
 
         return Ok(());
     }

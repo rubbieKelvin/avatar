@@ -18,13 +18,13 @@ impl Editor {
 
     #[allow(unused)]
     /// same as the above but for points
-    fn use_canvas_coord_for_point(&self, point: Point) -> Point {
+    pub(super) fn use_canvas_coord_for_point(&self, point: Point) -> Point {
         let center = self.workspace_rect.center();
         return Point::new(point.x + center.x, point.y + center.y);
     }
 
     #[allow(unused)]
-    fn get_active_component(&self) -> Option<&Component> {
+    pub(super) fn get_active_component(&self) -> Option<&Component> {
         return self
             .puppet
             .components

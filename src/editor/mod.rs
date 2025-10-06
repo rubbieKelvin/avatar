@@ -5,7 +5,7 @@ use sdl2::{
 };
 
 use crate::{
-    editor::constants::MAX_AUDIO_LEVEL,
+    editor::{configpanels::ConfigPanel, constants::MAX_AUDIO_LEVEL},
     puppet::{ComponentKind, Puppet},
     timer::Timer,
     typedefs::DragState,
@@ -17,6 +17,7 @@ struct LayerButton {
     hovered: bool,
 }
 
+mod configpanels;
 mod constants;
 mod draw;
 mod events;
@@ -31,6 +32,7 @@ pub struct Editor {
     workspace_rect: Rect,         // the area the puppet is displayed
     layer_button_area: Vec<LayerButton>,
     texture_creator: TextureCreator<WindowContext>,
+    config_panel: ConfigPanel,
 }
 
 impl Editor {
@@ -66,6 +68,7 @@ impl Editor {
             active_puppet_dragstate: None,
             audio_level: 0.,
             puppet,
+            config_panel: ConfigPanel::new(canvas_viewport.w - 340, 0, 340),
             workspace_rect: Rect::new(0, 0, 800, 800).centered_on(canvas_viewport.center()), // we'll set this after having access to the canvas
             texture_creator,
         };

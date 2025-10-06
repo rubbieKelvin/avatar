@@ -21,6 +21,8 @@ impl Editor {
             }
             _ => {}
         }
+
+        self.config_panel.handle_event(event.clone());
     }
 
     fn check_layer_text_surface_hover(&mut self, x: i32, y: i32) {

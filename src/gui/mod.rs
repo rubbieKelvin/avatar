@@ -1,4 +1,5 @@
 use sdl2::{
+    event::Event,
     pixels::Color,
     rect::{FRect, Point, Rect},
     render::Canvas,
@@ -9,6 +10,10 @@ use crate::{
     text::{GlobalTextManager, GlobalyLoadedFonts},
     typedefs::Orientation,
 };
+
+pub mod button;
+pub mod text_input;
+
 const PROGRESS_THICKNESS: u32 = 14;
 
 pub fn draw_progress(
@@ -81,4 +86,14 @@ pub fn draw_select_area<'a, 'b, S: AsRef<str>>(
     }
 
     return Ok(());
+}
+
+pub trait GuiWidget {
+    fn draw<'a, 'b>(
+        &self,
+        canvas: &mut Canvas<Window>,
+        tm: &GlobalTextManager<'a, 'b>,
+    ) -> Result<(), String>;
+
+    fn handle_event(&mut self, event: Event);
 }
