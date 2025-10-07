@@ -21,8 +21,8 @@ impl ConfigPanel {
         );
         add_state_button.font = GlobalyLoadedFonts::Tarzeau12;
 
-        let state_edit_input =
-            TextInput::new("State Name".to_string(), Rect::new(x, y + 80, w - 20, 30));
+        let state_edit_input = TextInput::new(Rect::new(x, y + 80, w - 20, 30));
+
         return ConfigPanel {
             x,
             y,
@@ -43,13 +43,16 @@ impl ConfigPanel {
 
         // draw widgets
         self.add_state_button.draw(canvas, tm)?;
-        self.state_edit_input.draw(canvas, tm)?;
+        self.state_edit_input
+            .draw_text(component.get_state().name.clone(), canvas, tm)?;
 
         return Ok(());
     }
 
-    pub fn handle_event(&mut self, event: Event) {
+    pub fn handle_event(&mut self, event: Event, component_name: &mut String) {
         self.add_state_button.handle_event(event.clone());
         self.state_edit_input.handle_event(event.clone());
+
+        self.state_edit_input.on_text_change(component_name, event);
     }
 }

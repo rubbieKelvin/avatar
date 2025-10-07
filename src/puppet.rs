@@ -12,11 +12,22 @@ pub enum ComponentKind {
 }
 
 // a component can have a state, ie: mouth_open, mouth_close and sprites to account for each
-#[derive(Default)]
 pub struct State {
     id: String,
+    pub name: String,
     filepath: PathBuf,
     pub position: (i32, i32),
+}
+
+impl Default for State {
+    fn default() -> Self {
+        return State {
+            id: nanoid::nanoid!(8),
+            name: "new state".to_string(),
+            filepath: PathBuf::new(),
+            position: (0, 0),
+        };
+    }
 }
 
 // A component is a part of the avatar's body

@@ -14,7 +14,7 @@ use crate::{
 pub struct Button {
     pub text: String,
     pub rect: Rect,
-    pub hover: bool,
+    pub is_hovered: bool,
     pub font: GlobalyLoadedFonts,
 }
 
@@ -23,7 +23,7 @@ impl Button {
         return Button {
             text,
             rect,
-            hover: false,
+            is_hovered: false,
             font: GlobalyLoadedFonts::Tarzeau16,
         };
     }
@@ -43,7 +43,7 @@ impl GuiWidget for Button {
         tm: &GlobalTextManager<'a, 'b>,
     ) -> Result<(), String> {
         let texture_creator = canvas.texture_creator();
-        canvas.set_draw_color(if self.hover {
+        canvas.set_draw_color(if self.is_hovered {
             Color::GREEN
         } else {
             Color::RGB(50, 50, 50)
@@ -53,7 +53,7 @@ impl GuiWidget for Button {
         let (surf, rect) = tm
             .write(&self.text, self.font.clone())
             .position(self.rect.x + 5, self.rect.y - 2)
-            .color(if self.hover {
+            .color(if self.is_hovered {
                 Color::BLACK
             } else {
                 Color::WHITE
@@ -70,7 +70,7 @@ impl GuiWidget for Button {
     fn handle_event(&mut self, event: Event) {
         match event {
             Event::MouseMotion { x, y, .. } => {
-                self.hover = self.rect.contains_point(Point::new(x, y));
+                self.is_hovered = self.rect.contains_point(Point::new(x, y));
             }
             _ => {}
         }

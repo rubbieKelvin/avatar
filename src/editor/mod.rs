@@ -1,12 +1,15 @@
 use sdl2::{
-    rect::Rect,
+    pixels::{Color, PixelFormatEnum},
+    rect::{Point, Rect},
     render::{Canvas, TextureCreator},
+    surface::Surface,
     video::{Window, WindowContext},
 };
 
 use crate::{
     editor::{configpanels::ConfigPanel, constants::MAX_AUDIO_LEVEL},
-    puppet::{ComponentKind, Puppet},
+    gui::button::Button,
+    puppet::{Component, ComponentKind, Puppet},
     timer::Timer,
     typedefs::DragState,
 };
@@ -22,6 +25,48 @@ mod constants;
 mod draw;
 mod events;
 mod utils;
+
+// pub struct PuppetComponentPanel {
+//     position: Point,
+//     component_buttons: Vec<Button>,
+// }
+
+// impl PuppetComponentPanel {
+//     fn new(x: i32, y: i32, w: u32, h: u32) -> Result<Self, String> {
+//         return Ok(Self {
+//             position: Point::new(x, y),
+//             component_buttons: vec![],
+//         });
+//     }
+
+//     fn set_component_buttons(&mut self, components: &Vec<Component>) {
+//         self.component_buttons = components
+//             .iter()
+//             .enumerate()
+//             .map(|(index, component)| {
+//                 let y = 20 + (40 * index as i32) + (10 * index as i32);
+//                 Button::new(component.kind.to_string(), Rect::new(20, y, 80, 40))
+//             })
+//             .collect();
+//     }
+
+//     fn draw(
+//         &self,
+//         canvas: &mut Canvas<Window>,
+//         components: &Vec<Component>,
+//         active_component: ComponentKind,
+//     ) -> Result<(), String> {
+//         for button in self.component_buttons {
+//             let is_active = component.kind == active_component;
+//             canvas.set_draw_color(Color::GREEN);
+
+//             if button.is_hovered {
+//                 let texture = self.surface.as_texture(canvas.texture_creator())?;
+//             }
+//         }
+//         return Ok(());
+//     }
+// }
 
 pub struct Editor {
     puppet: Puppet,

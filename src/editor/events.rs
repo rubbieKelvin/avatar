@@ -22,7 +22,10 @@ impl Editor {
             _ => {}
         }
 
-        self.config_panel.handle_event(event.clone());
+        // let component = self.get_active_component_mut().unwrap();
+        // let state = component.get_state_mut();
+        // self.config_panel
+        //     .handle_event(event.clone(), &mut state.name);
     }
 
     fn check_layer_text_surface_hover(&mut self, x: i32, y: i32) {
